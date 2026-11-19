@@ -16,6 +16,11 @@ pub struct VmafScore {
 }
 
 /// Argumentos para medir `distorted` contra `reference` (mesma resolução).
+///
+/// Os frames são pareados por **índice** (`setpts=N`), não por timestamp: containers
+/// como o MKV arredondam timestamps para milissegundos e o pareamento por tempo
+/// compararia frames vizinhos, derrubando o VMAF em cenas com movimento. A recodificação
+/// usa `fps_mode passthrough`, então a contagem de frames é a mesma.
 pub fn vmaf_args(
     distorted: &Path,
     reference: &Path,
@@ -23,8 +28,8 @@ pub fn vmaf_args(
     threads: usize,
 ) -> Vec<OsString> {
     let graph = format!(
-        "[0:v]format=yuv420p10le,setpts=PTS-STARTPTS[d];\
-         [1:v]format=yuv420p10le,setpts=PTS-STARTPTS[r];\
+        "[0:v]format=yuv420p10le,settb=AVTB,setpts=N[d];\
+         [1:v]format=yuv420p10le,settb=AVTB,setpts=N[r];\
          [d][r]libvmaf=model=version=vmaf_v0.6.1:n_threads={threads}:log_fmt=json:log_path={}",
         escape_filter_value(&log_path.to_string_lossy())
     );

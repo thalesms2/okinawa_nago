@@ -2,51 +2,51 @@
 source: crates/nago-core/src/profiles.rs
 expression: "all.join(\"\\n\")"
 ---
-libsvtav1 / visually-lossless: -c:v libsvtav1 -pix_fmt yuv420p10le -crf 22 -preset 6 -g 300 -svtav1-params tune=0 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-libsvtav1 / high: -c:v libsvtav1 -pix_fmt yuv420p10le -crf 28 -preset 6 -g 300 -svtav1-params tune=0 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-libsvtav1 / balanced: -c:v libsvtav1 -pix_fmt yuv420p10le -crf 32 -preset 6 -g 300 -svtav1-params tune=0 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-libsvtav1 / small: -c:v libsvtav1 -pix_fmt yuv420p10le -crf 36 -preset 6 -g 300 -svtav1-params tune=0 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-libx265 / visually-lossless: -c:v libx265 -pix_fmt yuv420p10le -crf 18 -preset slow -x265-params log-level=error -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-libx265 / high: -c:v libx265 -pix_fmt yuv420p10le -crf 22 -preset slow -x265-params log-level=error -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-libx265 / balanced: -c:v libx265 -pix_fmt yuv420p10le -crf 25 -preset slow -x265-params log-level=error -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-libx265 / small: -c:v libx265 -pix_fmt yuv420p10le -crf 28 -preset slow -x265-params log-level=error -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-libx264 / visually-lossless: -c:v libx264 -pix_fmt yuv420p -crf 17 -preset slow -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-libx264 / high: -c:v libx264 -pix_fmt yuv420p -crf 20 -preset slow -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-libx264 / balanced: -c:v libx264 -pix_fmt yuv420p -crf 23 -preset slow -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-libx264 / small: -c:v libx264 -pix_fmt yuv420p -crf 26 -preset slow -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-av1_nvenc / visually-lossless: -c:v av1_nvenc -pix_fmt p010le -preset p6 -tune hq -rc vbr -cq 26 -b 0 -multipass qres -spatial-aq 1 -temporal-aq 1 -rc-lookahead 32 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+libsvtav1 / visually-lossless: -c:v libsvtav1 -pix_fmt yuv420p10le -crf 15 -preset 6 -g 300 -svtav1-params tune=0 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+libsvtav1 / high: -c:v libsvtav1 -pix_fmt yuv420p10le -crf 24 -preset 6 -g 300 -svtav1-params tune=0 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+libsvtav1 / balanced: -c:v libsvtav1 -pix_fmt yuv420p10le -crf 30 -preset 6 -g 300 -svtav1-params tune=0 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+libsvtav1 / small: -c:v libsvtav1 -pix_fmt yuv420p10le -crf 35 -preset 6 -g 300 -svtav1-params tune=0 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+libx265 / visually-lossless: -c:v libx265 -pix_fmt yuv420p10le -crf 17 -preset slow -x265-params log-level=error -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+libx265 / high: -c:v libx265 -pix_fmt yuv420p10le -crf 21 -preset slow -x265-params log-level=error -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+libx265 / balanced: -c:v libx265 -pix_fmt yuv420p10le -crf 24 -preset slow -x265-params log-level=error -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+libx265 / small: -c:v libx265 -pix_fmt yuv420p10le -crf 27 -preset slow -x265-params log-level=error -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+libx264 / visually-lossless: -c:v libx264 -pix_fmt yuv420p -crf 15 -preset slow -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+libx264 / high: -c:v libx264 -pix_fmt yuv420p -crf 19 -preset slow -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+libx264 / balanced: -c:v libx264 -pix_fmt yuv420p -crf 21 -preset slow -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+libx264 / small: -c:v libx264 -pix_fmt yuv420p -crf 24 -preset slow -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+av1_nvenc / visually-lossless: -c:v av1_nvenc -pix_fmt p010le -preset p6 -tune hq -rc vbr -cq 27 -b 0 -multipass qres -spatial-aq 1 -temporal-aq 1 -rc-lookahead 32 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
 av1_nvenc / high: -c:v av1_nvenc -pix_fmt p010le -preset p6 -tune hq -rc vbr -cq 32 -b 0 -multipass qres -spatial-aq 1 -temporal-aq 1 -rc-lookahead 32 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-av1_nvenc / balanced: -c:v av1_nvenc -pix_fmt p010le -preset p6 -tune hq -rc vbr -cq 37 -b 0 -multipass qres -spatial-aq 1 -temporal-aq 1 -rc-lookahead 32 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-av1_nvenc / small: -c:v av1_nvenc -pix_fmt p010le -preset p6 -tune hq -rc vbr -cq 42 -b 0 -multipass qres -spatial-aq 1 -temporal-aq 1 -rc-lookahead 32 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-hevc_nvenc / visually-lossless: -c:v hevc_nvenc -pix_fmt p010le -preset p6 -tune hq -rc vbr -cq 22 -b 0 -multipass qres -spatial-aq 1 -temporal-aq 1 -rc-lookahead 32 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-hevc_nvenc / high: -c:v hevc_nvenc -pix_fmt p010le -preset p6 -tune hq -rc vbr -cq 27 -b 0 -multipass qres -spatial-aq 1 -temporal-aq 1 -rc-lookahead 32 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-hevc_nvenc / balanced: -c:v hevc_nvenc -pix_fmt p010le -preset p6 -tune hq -rc vbr -cq 31 -b 0 -multipass qres -spatial-aq 1 -temporal-aq 1 -rc-lookahead 32 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-hevc_nvenc / small: -c:v hevc_nvenc -pix_fmt p010le -preset p6 -tune hq -rc vbr -cq 35 -b 0 -multipass qres -spatial-aq 1 -temporal-aq 1 -rc-lookahead 32 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-h264_nvenc / visually-lossless: -c:v h264_nvenc -pix_fmt yuv420p -preset p6 -tune hq -rc vbr -cq 20 -b 0 -multipass qres -spatial-aq 1 -temporal-aq 1 -rc-lookahead 32 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-h264_nvenc / high: -c:v h264_nvenc -pix_fmt yuv420p -preset p6 -tune hq -rc vbr -cq 24 -b 0 -multipass qres -spatial-aq 1 -temporal-aq 1 -rc-lookahead 32 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-h264_nvenc / balanced: -c:v h264_nvenc -pix_fmt yuv420p -preset p6 -tune hq -rc vbr -cq 28 -b 0 -multipass qres -spatial-aq 1 -temporal-aq 1 -rc-lookahead 32 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+av1_nvenc / balanced: -c:v av1_nvenc -pix_fmt p010le -preset p6 -tune hq -rc vbr -cq 36 -b 0 -multipass qres -spatial-aq 1 -temporal-aq 1 -rc-lookahead 32 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+av1_nvenc / small: -c:v av1_nvenc -pix_fmt p010le -preset p6 -tune hq -rc vbr -cq 40 -b 0 -multipass qres -spatial-aq 1 -temporal-aq 1 -rc-lookahead 32 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+hevc_nvenc / visually-lossless: -c:v hevc_nvenc -pix_fmt p010le -preset p6 -tune hq -rc vbr -cq 21 -b 0 -multipass qres -spatial-aq 1 -temporal-aq 1 -rc-lookahead 32 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+hevc_nvenc / high: -c:v hevc_nvenc -pix_fmt p010le -preset p6 -tune hq -rc vbr -cq 26 -b 0 -multipass qres -spatial-aq 1 -temporal-aq 1 -rc-lookahead 32 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+hevc_nvenc / balanced: -c:v hevc_nvenc -pix_fmt p010le -preset p6 -tune hq -rc vbr -cq 28 -b 0 -multipass qres -spatial-aq 1 -temporal-aq 1 -rc-lookahead 32 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+hevc_nvenc / small: -c:v hevc_nvenc -pix_fmt p010le -preset p6 -tune hq -rc vbr -cq 31 -b 0 -multipass qres -spatial-aq 1 -temporal-aq 1 -rc-lookahead 32 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+h264_nvenc / visually-lossless: -c:v h264_nvenc -pix_fmt yuv420p -preset p6 -tune hq -rc vbr -cq 23 -b 0 -multipass qres -spatial-aq 1 -temporal-aq 1 -rc-lookahead 32 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+h264_nvenc / high: -c:v h264_nvenc -pix_fmt yuv420p -preset p6 -tune hq -rc vbr -cq 27 -b 0 -multipass qres -spatial-aq 1 -temporal-aq 1 -rc-lookahead 32 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+h264_nvenc / balanced: -c:v h264_nvenc -pix_fmt yuv420p -preset p6 -tune hq -rc vbr -cq 29 -b 0 -multipass qres -spatial-aq 1 -temporal-aq 1 -rc-lookahead 32 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
 h264_nvenc / small: -c:v h264_nvenc -pix_fmt yuv420p -preset p6 -tune hq -rc vbr -cq 32 -b 0 -multipass qres -spatial-aq 1 -temporal-aq 1 -rc-lookahead 32 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-av1_qsv / visually-lossless: -c:v av1_qsv -pix_fmt p010le -preset slower -global_quality 26 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+av1_qsv / visually-lossless: -c:v av1_qsv -pix_fmt p010le -preset slower -global_quality 27 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
 av1_qsv / high: -c:v av1_qsv -pix_fmt p010le -preset slower -global_quality 32 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-av1_qsv / balanced: -c:v av1_qsv -pix_fmt p010le -preset slower -global_quality 37 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-av1_qsv / small: -c:v av1_qsv -pix_fmt p010le -preset slower -global_quality 42 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-hevc_qsv / visually-lossless: -c:v hevc_qsv -pix_fmt p010le -preset slower -global_quality 22 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-hevc_qsv / high: -c:v hevc_qsv -pix_fmt p010le -preset slower -global_quality 27 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-hevc_qsv / balanced: -c:v hevc_qsv -pix_fmt p010le -preset slower -global_quality 31 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-hevc_qsv / small: -c:v hevc_qsv -pix_fmt p010le -preset slower -global_quality 35 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-h264_qsv / visually-lossless: -c:v h264_qsv -pix_fmt nv12 -preset slower -global_quality 20 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-h264_qsv / high: -c:v h264_qsv -pix_fmt nv12 -preset slower -global_quality 24 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-h264_qsv / balanced: -c:v h264_qsv -pix_fmt nv12 -preset slower -global_quality 28 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+av1_qsv / balanced: -c:v av1_qsv -pix_fmt p010le -preset slower -global_quality 36 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+av1_qsv / small: -c:v av1_qsv -pix_fmt p010le -preset slower -global_quality 40 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+hevc_qsv / visually-lossless: -c:v hevc_qsv -pix_fmt p010le -preset slower -global_quality 21 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+hevc_qsv / high: -c:v hevc_qsv -pix_fmt p010le -preset slower -global_quality 26 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+hevc_qsv / balanced: -c:v hevc_qsv -pix_fmt p010le -preset slower -global_quality 28 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+hevc_qsv / small: -c:v hevc_qsv -pix_fmt p010le -preset slower -global_quality 31 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+h264_qsv / visually-lossless: -c:v h264_qsv -pix_fmt nv12 -preset slower -global_quality 23 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+h264_qsv / high: -c:v h264_qsv -pix_fmt nv12 -preset slower -global_quality 27 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
+h264_qsv / balanced: -c:v h264_qsv -pix_fmt nv12 -preset slower -global_quality 29 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
 h264_qsv / small: -c:v h264_qsv -pix_fmt nv12 -preset slower -global_quality 32 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv
-av1_vaapi / visually-lossless: -vaapi_device /dev/dri/renderD128 -c:v av1_vaapi -rc_mode CQP -qp 26 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv,format=p010,hwupload
+av1_vaapi / visually-lossless: -vaapi_device /dev/dri/renderD128 -c:v av1_vaapi -rc_mode CQP -qp 27 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv,format=p010,hwupload
 av1_vaapi / high: -vaapi_device /dev/dri/renderD128 -c:v av1_vaapi -rc_mode CQP -qp 32 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv,format=p010,hwupload
-av1_vaapi / balanced: -vaapi_device /dev/dri/renderD128 -c:v av1_vaapi -rc_mode CQP -qp 37 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv,format=p010,hwupload
-av1_vaapi / small: -vaapi_device /dev/dri/renderD128 -c:v av1_vaapi -rc_mode CQP -qp 42 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv,format=p010,hwupload
-hevc_vaapi / visually-lossless: -vaapi_device /dev/dri/renderD128 -c:v hevc_vaapi -rc_mode CQP -qp 22 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv,format=p010,hwupload
-hevc_vaapi / high: -vaapi_device /dev/dri/renderD128 -c:v hevc_vaapi -rc_mode CQP -qp 27 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv,format=p010,hwupload
-hevc_vaapi / balanced: -vaapi_device /dev/dri/renderD128 -c:v hevc_vaapi -rc_mode CQP -qp 31 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv,format=p010,hwupload
-hevc_vaapi / small: -vaapi_device /dev/dri/renderD128 -c:v hevc_vaapi -rc_mode CQP -qp 35 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv,format=p010,hwupload
-h264_vaapi / visually-lossless: -vaapi_device /dev/dri/renderD128 -c:v h264_vaapi -rc_mode CQP -qp 20 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv,format=nv12,hwupload
-h264_vaapi / high: -vaapi_device /dev/dri/renderD128 -c:v h264_vaapi -rc_mode CQP -qp 24 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv,format=nv12,hwupload
-h264_vaapi / balanced: -vaapi_device /dev/dri/renderD128 -c:v h264_vaapi -rc_mode CQP -qp 28 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv,format=nv12,hwupload
+av1_vaapi / balanced: -vaapi_device /dev/dri/renderD128 -c:v av1_vaapi -rc_mode CQP -qp 36 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv,format=p010,hwupload
+av1_vaapi / small: -vaapi_device /dev/dri/renderD128 -c:v av1_vaapi -rc_mode CQP -qp 40 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv,format=p010,hwupload
+hevc_vaapi / visually-lossless: -vaapi_device /dev/dri/renderD128 -c:v hevc_vaapi -rc_mode CQP -qp 21 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv,format=p010,hwupload
+hevc_vaapi / high: -vaapi_device /dev/dri/renderD128 -c:v hevc_vaapi -rc_mode CQP -qp 26 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv,format=p010,hwupload
+hevc_vaapi / balanced: -vaapi_device /dev/dri/renderD128 -c:v hevc_vaapi -rc_mode CQP -qp 28 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv,format=p010,hwupload
+hevc_vaapi / small: -vaapi_device /dev/dri/renderD128 -c:v hevc_vaapi -rc_mode CQP -qp 31 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv,format=p010,hwupload
+h264_vaapi / visually-lossless: -vaapi_device /dev/dri/renderD128 -c:v h264_vaapi -rc_mode CQP -qp 23 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv,format=nv12,hwupload
+h264_vaapi / high: -vaapi_device /dev/dri/renderD128 -c:v h264_vaapi -rc_mode CQP -qp 27 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv,format=nv12,hwupload
+h264_vaapi / balanced: -vaapi_device /dev/dri/renderD128 -c:v h264_vaapi -rc_mode CQP -qp 29 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv,format=nv12,hwupload
 h264_vaapi / small: -vaapi_device /dev/dri/renderD128 -c:v h264_vaapi -rc_mode CQP -qp 32 -g 300 -vf setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv,format=nv12,hwupload

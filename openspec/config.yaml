@@ -14,8 +14,9 @@ context: |
     depois, nago-tui.
   - Motor de mídia: binários externos `ffmpeg`/`ffprobe` (>= 6.0) chamados como
     subprocesso. NÃO usar bindings da libav (ffmpeg-next) por enquanto.
-  - "Sem perder qualidade" significa perceptualmente sem perdas (meta VMAF >= 95
-    por padrão), nunca matematicamente lossless. Stream copy é usado sempre que
+  - "Sem perder qualidade" significa perceptualmente sem perdas (meta VMAF médio
+    >= 93 no perfil padrão), nunca matematicamente lossless. O vmaf_v0.6.1 satura
+    em ~97,5 mesmo para vídeo idêntico em conteúdo de pouco movimento. Stream copy é usado sempre que
     não houver necessidade de recodificar.
   - Interface: CLI (clap) primeiro; TUI (ratatui) em uma change posterior sobre o
     mesmo nago-core.

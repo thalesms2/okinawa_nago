@@ -303,12 +303,12 @@ mod tests {
 
     #[test]
     fn aviso_de_vmaf_abaixo_da_meta() {
-        let msg = vmaf_warning(92.0, Quality::High).unwrap();
-        assert!(msg.contains("92.00") && msg.contains("meta 95"), "{msg}");
+        let msg = vmaf_warning(90.0, Quality::High).unwrap();
+        assert!(msg.contains("90.00") && msg.contains("meta 93"), "{msg}");
         assert!(msg.contains("--quality visually-lossless"));
-        assert_eq!(vmaf_warning(95.0, Quality::High), None);
-        assert_eq!(vmaf_warning(99.0, Quality::VisuallyLossless), None);
-        let vl = vmaf_warning(96.0, Quality::VisuallyLossless).unwrap();
+        assert_eq!(vmaf_warning(93.0, Quality::High), None);
+        assert_eq!(vmaf_warning(96.0, Quality::VisuallyLossless), None);
+        let vl = vmaf_warning(94.0, Quality::VisuallyLossless).unwrap();
         assert!(!vl.contains("experimente"));
     }
 }

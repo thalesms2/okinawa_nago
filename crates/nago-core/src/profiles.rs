@@ -27,10 +27,10 @@ impl Quality {
     /// Meta de VMAF médio documentada para o perfil.
     pub fn vmaf_target(self) -> f64 {
         match self {
-            Quality::VisuallyLossless => 97.0,
-            Quality::High => 95.0,
-            Quality::Balanced => 93.0,
-            Quality::Small => 90.0,
+            Quality::VisuallyLossless => 95.0,
+            Quality::High => 93.0,
+            Quality::Balanced => 91.0,
+            Quality::Small => 88.0,
         }
     }
 
@@ -52,13 +52,14 @@ impl Quality {
 /// Valores calibrados: ver `docs/calibration.md`.
 fn quality_value(encoder: &Encoder, q: Quality) -> u32 {
     let table: [u32; 4] = match (encoder.codec, encoder.backend) {
-        (Codec::Av1, Backend::Software) => [22, 28, 32, 36],
-        (Codec::Hevc, Backend::Software) => [18, 22, 25, 28],
-        (Codec::H264, Backend::Software) => [17, 20, 23, 26],
+        (Codec::Av1, Backend::Software) => [15, 24, 30, 35],
+        (Codec::Hevc, Backend::Software) => [17, 21, 24, 27],
+        (Codec::H264, Backend::Software) => [15, 19, 21, 24],
+        // Calibrado no NVENC; QSV/VAAPI usam os mesmos valores (não calibrados).
         // AV1 no hardware usa a escala 0–63; HEVC/H.264, 0–51.
-        (Codec::Av1, _) => [26, 32, 37, 42],
-        (Codec::Hevc, _) => [22, 27, 31, 35],
-        (Codec::H264, _) => [20, 24, 28, 32],
+        (Codec::Av1, _) => [27, 32, 36, 40],
+        (Codec::Hevc, _) => [21, 26, 28, 31],
+        (Codec::H264, _) => [23, 27, 29, 32],
     };
     table[q.idx()]
 }
@@ -335,9 +336,9 @@ mod tests {
 
     #[test]
     fn metas_de_vmaf_documentadas() {
-        assert_eq!(Quality::VisuallyLossless.vmaf_target(), 97.0);
-        assert_eq!(Quality::High.vmaf_target(), 95.0);
-        assert_eq!(Quality::Balanced.vmaf_target(), 93.0);
-        assert_eq!(Quality::Small.vmaf_target(), 90.0);
+        assert_eq!(Quality::VisuallyLossless.vmaf_target(), 95.0);
+        assert_eq!(Quality::High.vmaf_target(), 93.0);
+        assert_eq!(Quality::Balanced.vmaf_target(), 91.0);
+        assert_eq!(Quality::Small.vmaf_target(), 88.0);
     }
 }

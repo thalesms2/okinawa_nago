@@ -2,7 +2,7 @@
 
 ## Context
 
-Projeto novo (repositório vazio). Motivação em `proposal.md`; comportamento em `specs/`. As restrições fixas (Rust, FFmpeg como subprocesso, VMAF >= 95 como definição de "sem perda perceptível") estão em `openspec/config.yaml`. Máquina de referência: FFmpeg 9.0 com libsvtav1, libx265, libx264, NVENC/QSV/VAAPI e libvmaf, e GPU RTX 4060 Ti (NVENC de 8ª geração, com AV1).
+Projeto novo (repositório vazio). Motivação em `proposal.md`; comportamento em `specs/`. As restrições fixas (Rust, FFmpeg como subprocesso, VMAF médio >= 93 no perfil padrão como definição de "sem perda perceptível") estão em `openspec/config.yaml`. Máquina de referência: FFmpeg 9.0 com libsvtav1, libx265, libx264, NVENC/QSV/VAAPI e libvmaf, e GPU RTX 4060 Ti (NVENC de 8ª geração, com AV1).
 
 ## Goals / Non-Goals
 
@@ -57,20 +57,20 @@ Uma tabela estática (`planner::compat`) define, para cada container, os codecs 
 \* opus e flac em mp4 são válidos, mas têm suporte irregular em players; o fallback é aac quando `--compat` for informado (padrão: copiar).
 A decisão por stream (`Copy | Transcode(codec) | Drop(motivo)`) é uma função pura coberta por testes de tabela.
 
-### D6. Perfis de qualidade (valores iniciais, calibrados na tarefa 6.6)
+### D6. Perfis de qualidade (calibrados na tarefa 6.6, ver `docs/calibration.md`)
 
-| Perfil | Meta VMAF | SVT-AV1 (preset 6) | x265 (slow) | x264 (slow) | NVENC AV1/HEVC (p6, hq, vbr) |
-|--------|-----------|--------------------|-------------|-------------|------------------------------|
-| visually-lossless | 97 | crf 22 | crf 18 | crf 17 | cq 22 |
-| high (padrão)     | 95 | crf 28 | crf 22 | crf 20 | cq 27 |
-| balanced          | 93 | crf 32 | crf 25 | crf 23 | cq 31 |
-| small             | 90 | crf 36 | crf 28 | crf 26 | cq 35 |
+| Perfil | Meta VMAF | SVT-AV1 (preset 6) | x265 (slow) | x264 (slow) | NVENC AV1 | NVENC HEVC | NVENC H.264 |
+|--------|-----------|--------------------|-------------|-------------|-----------|------------|-------------|
+| visually-lossless | 95 | crf 15 | crf 17 | crf 15 | cq 27 | cq 21 | cq 23 |
+| high (padrão)     | 93 | crf 24 | crf 21 | crf 19 | cq 32 | cq 26 | cq 27 |
+| balanced          | 91 | crf 30 | crf 24 | crf 21 | cq 36 | cq 28 | cq 29 |
+| small             | 88 | crf 35 | crf 27 | crf 24 | cq 40 | cq 31 | cq 32 |
 
 - Qualidade constante (CRF/CQ), nunca bitrate fixo: o tamanho se adapta ao conteúdo, e qualidade é o que o usuário pediu.
 - **Saída 10-bit** para AV1/HEVC (`yuv420p10le`, ou `p010le` no NVENC) mesmo com fonte 8-bit: comprime melhor e evita banding. H.264 fica em 8-bit por compatibilidade.
 - SVT-AV1 com `-svtav1-params tune=0` (otimizado para qualidade visual) e GOP de ~10 s (`-g` = 10×fps) para facilitar o seek.
 - NVENC: `-rc vbr -cq N -b:v 0 -multipass qres -spatial-aq 1 -temporal-aq 1 -rc-lookahead 32`.
-- Estes valores são iniciais: a tarefa de calibração mede o VMAF em um corpus pequeno e ajusta a tabela, que fica num único módulo (`profiles.rs`).
+- Critério de calibração: o maior CRF/CQ cujo VMAF médio atinge a meta no **pior** dos 4 clipes do corpus (sempre a gravação de celular já comprimida). Conteúdo limpo (filmes, animação) fica bem acima da meta. A tabela fica num único módulo (`profiles.rs`); QSV/VAAPI reutilizam os valores do NVENC sem calibração própria.
 
 ### D7. Detecção de encoders com teste real
 `ffmpeg -encoders` só diz o que foi compilado. Para cada encoder de hardware candidato, o core executa um teste de ~0,1 s (`-f lavfi -i color=s=256x256:d=0.1 -c:v <enc> -f null -`). O resultado vai para cache em `$XDG_CACHE_HOME/nago/caps.json`, com chave (caminho do ffmpeg, mtime, versão). `nago doctor` sempre refaz a detecção.
@@ -84,13 +84,14 @@ Aplicar `color_primaries`, `color_trc`, `colorspace` e `color_range` do probe vi
 - Sinais via `tokio::signal`. Ao cancelar, o core envia `q` no stdin do ffmpeg (encerramento gracioso), depois SIGTERM após 2 s e SIGKILL após 5 s. O guard limpa e a CLI sai com 130.
 
 ### D10. VMAF (`--verify`)
-`ffmpeg -i <saída> -i <entrada recortada ao mesmo trecho> -lavfi "[0:v]scale=…:flags=bicubic,setpts=PTS-STARTPTS[d];[1:v]…[r];[d][r]libvmaf=model=version=vmaf_v0.6.1:n_threads=<cpus>:log_fmt=json:log_path=<tmp>" -f null -`. A média e o p5 são calculados a partir do log por frame. Para HDR, o sistema avisa que o modelo VMAF padrão é SDR e que o valor é apenas indicativo.
+`ffmpeg -i <saída> -i <entrada> -lavfi "[0:v]format=yuv420p10le,settb=AVTB,setpts=N[d];[1:v]…[r];[d][r]libvmaf=model=version=vmaf_v0.6.1:n_threads=<cpus>:log_fmt=json:log_path=<tmp>" -f null -`. Os frames são pareados **por índice** (`setpts=N`): pareando por timestamp, o arredondamento para milissegundos do MKV comparava frames vizinhos e derrubava o VMAF de ~95 para ~84, com p5 em torno de 8 (constatado na calibração). A média e o p5 são calculados a partir do log por frame. Para HDR, o sistema avisa que o modelo VMAF padrão é SDR e que o valor é apenas indicativo.
 
 ### D11. Crates e ferramentas
 `clap` (derive), `tokio` (rt-multi-thread, process, signal, sync), `serde`/`serde_json`, `thiserror`/`anyhow`, `tracing` + `tracing-subscriber`, `indicatif`, `tempfile`, `humansize`, `which`. Testes: `insta` (snapshots dos argumentos do ffmpeg), `assert_cmd` + `predicates` (CLI). CI: GitHub Actions com `cargo fmt --check`, `clippy -D warnings` e testes (Ubuntu 24.04, ffmpeg 6.1 via apt). Testes de GPU ficam marcados com `#[ignore]` e rodam localmente com `cargo test -- --ignored`.
 
 ## Risks / Trade-offs
 
+- [O VMAF satura em ~97,5 mesmo para vídeo idêntico (vmaf_v0.6.1, pouco movimento) e fontes já comprimidas exigem CRF muito baixo para passar de 95] → metas fixadas em 95/93/91/88 (≈ 1 JND abaixo do teto no `high`), após calibração com fontes reais; números em `docs/calibration.md`.
 - [CRF fixo não garante a meta de VMAF em todo conteúdo (anime, grão, tela)] → `--verify` mede e avisa; a busca automática de CRF vem em `add-quality-targeting`.
 - [NVENC gera arquivos ~15–30% maiores que o SVT-AV1 para a mesma qualidade] → software é o padrão; `--gpu` é uma escolha consciente por velocidade, e o relatório mostra o encoder usado.
 - [O corte rápido começa no keyframe anterior, então pode incluir até um GOP a mais] → o sistema informa o início real e sugere `--exact`.

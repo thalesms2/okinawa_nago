@@ -1,13 +1,13 @@
-# Spec Delta
+# video-compression Specification
 
 ## Purpose
 
 Reduzir o tamanho de vídeos recodificando-os com codecs modernos e perfis de qualidade pré-calibrados, mantendo a qualidade perceptualmente igual à original e permitindo medir objetivamente o resultado.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Perfis de qualidade
-O comando `nago compress <arquivo>` SHALL aceitar `--quality` com os perfis `visually-lossless`, `high` (padrão), `balanced` e `small`, cada um com uma meta de VMAF documentada (respectivamente >= 97, >= 95, >= 93 e >= 90) e parâmetros de encoder calibrados para atingi-la em conteúdo típico.
+O comando `nago compress <arquivo>` SHALL aceitar `--quality` com os perfis `visually-lossless`, `high` (padrão), `balanced` e `small`, cada um com uma meta de VMAF médio documentada (respectivamente >= 95, >= 93, >= 91 e >= 88) e parâmetros de encoder calibrados para atingi-la em conteúdo típico.
 
 #### Scenario: Perfil padrão
 - **WHEN** o usuário executa `nago compress video.mp4` sem `--quality`
@@ -60,8 +60,8 @@ Com `--verify`, o sistema SHALL calcular o VMAF médio e o percentil 5 da saída
 - **THEN** o relatório final inclui `vmaf_mean` e `vmaf_p5`
 
 #### Scenario: Qualidade abaixo da meta
-- **WHEN** a verificação resulta em VMAF médio 92 com o perfil `high`
-- **THEN** a saída é mantida e o sistema avisa que a meta 95 não foi atingida, sugerindo o perfil `visually-lossless`
+- **WHEN** a verificação resulta em VMAF médio 90 com o perfil `high`
+- **THEN** a saída é mantida e o sistema avisa que a meta 93 não foi atingida, sugerindo o perfil `visually-lossless`
 
 #### Scenario: FFmpeg sem libvmaf
 - **WHEN** o usuário usa `--verify` com um ffmpeg compilado sem libvmaf

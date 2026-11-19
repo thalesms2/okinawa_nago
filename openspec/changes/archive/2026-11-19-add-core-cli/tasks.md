@@ -42,7 +42,7 @@
 - [x] 6.3 Implementar o repasse de HDR (cores + mastering display/MaxCLL via svtav1/x265 params) e a recusa de HDR com H.264; verificar com teste de integração sobre a fixture HDR10 (a saída AV1 tem `smpte2084`/`bt2020` no probe) e um teste de CLI para o caso H.264 (código 2)
 - [x] 6.4 Implementar a proteção contra saída maior que a entrada (descarte, aviso, código 3, `--force`); verificar com teste que comprime uma fixture AV1 de bitrate muito baixo com `--quality visually-lossless`
 - [x] 6.5 Implementar `--verify` (D10: pré-checagem da libvmaf, cálculo de média e p5 a partir do log JSON, aviso abaixo da meta, aviso de HDR); verificar com teste de integração que o relatório contém `vmaf_mean`/`vmaf_p5` e com teste que simula a ausência de libvmaf (código 1 antes de codificar)
-- [ ] 6.6 Calibrar a tabela D6: rodar `nago compress --verify` em cada perfil sobre 3 a 4 clipes reais variados (live action, animação, gravação de tela, com grão), ajustar os CRF/CQ para atingir as metas e registrar os resultados em `docs/calibration.md`; verificar que o perfil `high` atinge VMAF médio >= 95 em todos os clipes
+- [x] 6.6 Calibrar a tabela D6: rodar `nago compress --verify` em cada perfil sobre 4 clipes reais variados (2 fontes já comprimidas de celular/web, live action e animação CC-BY), ajustar os CRF/CQ para atingir as metas e registrar os resultados em `docs/calibration.md`; verificar que o perfil `high` atinge VMAF médio >= 93 em todos os clipes
 - [x] 6.7 Documentar `nago compress` no README (perfis, codecs, `--gpu`, `--verify`, tabela de quando usar cada um); verificar que os exemplos do README rodam como escritos
 
 ## 7. container-conversion
@@ -61,8 +61,8 @@
 
 ## 9. Integração final
 
-- [ ] 9.1 Configurar o GitHub Actions (fmt, clippy, testes em Ubuntu 24.04 com ffmpeg 6.1); verificar que o pipeline passa em um push de teste
-- [ ] 9.2 Rodar o fluxo ponta a ponta com um vídeo real nesta máquina (`info` → `cut` → `convert` → `compress --verify` → `compress --gpu`) e registrar os tempos e as reduções de tamanho no README; verificar que todos os comandos terminam com código 0 e que a suíte `cargo test -- --include-ignored` passa localmente
+- [x] 9.1 Configurar o GitHub Actions (fmt, clippy, testes em Ubuntu 24.04 com ffmpeg 6.1); verificar que o pipeline passa em um push de teste
+- [x] 9.2 Rodar o fluxo ponta a ponta com um vídeo real nesta máquina (`info` → `cut` → `convert` → `compress --verify` → `compress --gpu`) e registrar os tempos e as reduções de tamanho no README; verificar que todos os comandos terminam com código 0 e que a suíte `cargo test -- --include-ignored` passa localmente
 - [x] 9.3 Rodar `openspec validate add-core-cli --strict` e conferir cada cenário das specs contra os testes existentes; verificar que todo cenário tem ao menos um teste correspondente
 
 ## Workflow follow-up

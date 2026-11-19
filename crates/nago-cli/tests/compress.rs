@@ -133,8 +133,10 @@ fn verify_inclui_vmaf_no_relatorio() {
     }
     let dir = tempfile::tempdir().unwrap();
     let input = fixture_in(Fixture::H264Aac360p, dir.path());
+    // Saída MKV de propósito: timestamps em ms não podem desalinhar a comparação.
     let out = nago()
-        .args(["compress", "--verify", "--force", "--json"])
+        .args(["compress", "--verify", "--force", "--json", "-o"])
+        .arg(dir.path().join("saida.mkv"))
         .arg(&input)
         .output()
         .unwrap();
@@ -150,7 +152,12 @@ fn verify_inclui_vmaf_no_relatorio() {
         mean > 50.0 && mean <= 100.0 && p5 <= mean + 1e-9,
         "{mean} {p5}"
     );
-    assert_eq!(v["vmaf_target"], 95.0);
+    // sem frames desalinhados, o pior trecho fica perto da média
+    assert!(
+        p5 > mean - 5.0,
+        "p5 {p5} muito abaixo da média {mean}: frames desalinhados?"
+    );
+    assert_eq!(v["vmaf_target"], 93.0);
 }
 
 #[test]

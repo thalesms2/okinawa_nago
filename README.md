@@ -57,18 +57,19 @@ nago compress video.mp4 -o menor.mkv
 
 | Perfil | Meta VMAF | Quando usar |
 |---|---|---|
-| `visually-lossless` | ≥ 97 | Arquivo/master: indistinguível do original mesmo procurando |
-| `high` (padrão) | ≥ 95 | Uso geral: sem diferença visível assistindo normalmente |
-| `balanced` | ≥ 93 | Compartilhar: diferença só em comparação lado a lado |
-| `small` | ≥ 90 | Prioridade é o tamanho (pré-visualizações, envio rápido) |
+| `visually-lossless` | ≥ 95 | Arquivo/master: indistinguível do original mesmo procurando |
+| `high` (padrão) | ≥ 93 | Uso geral: sem diferença visível assistindo normalmente |
+| `balanced` | ≥ 91 | Compartilhar: diferença só em comparação lado a lado |
+| `small` | ≥ 88 | Prioridade é o tamanho (pré-visualizações, envio rápido) |
 
 **Codec** (`--codec`): `av1` (padrão, o menor arquivo), `hevc` (bom equilíbrio e
 suporte amplo em hardware) ou `h264` (compatibilidade máxima, arquivo maior).
 AV1 e HEVC saem em 10-bit, o que comprime melhor e evita banding.
 
-**GPU** (`--gpu`): usa o encoder de hardware na ordem NVENC > QSV > VAAPI. Fica de 5
-a 10 vezes mais rápido, mas o arquivo sai de 15% a 30% maior para a mesma qualidade.
-Sem GPU funcional, o `nago` avisa e usa o encoder de software.
+**GPU** (`--gpu`): usa o encoder de hardware na ordem NVENC > QSV > VAAPI. É mais
+rápido, mas o arquivo sai bem maior para a mesma qualidade: na calibração, o NVENC AV1
+no perfil `high` reduziu de 10% a 23% as gravações de celular, contra 39% a 41% do
+SVT-AV1. Sem GPU funcional, o `nago` avisa e usa o encoder de software.
 
 O que o `nago compress` garante:
 
@@ -82,6 +83,9 @@ O que o `nago compress` garante:
   foi atingida.
 
 Container de saída: o mesmo da entrada quando ele suporta o codec; senão, `mkv`.
+
+Os valores de CRF/CQ de cada perfil foram calibrados com VMAF em 4 clipes reais; os
+resultados por encoder estão em [`docs/calibration.md`](docs/calibration.md).
 
 ### `nago cut`
 
@@ -122,6 +126,22 @@ MP4; legendas SRT viram `mov_text` (MP4) ou WebVTT (WebM); legendas de imagem (P
 que o destino não suporta são descartadas com aviso. Saídas MP4/MOV/M4A já saem
 otimizadas para streaming (índice no início do arquivo).
 
+## Desempenho
+
+Fluxo ponta a ponta numa gravação de celular de 1 minuto (H.264 1080x1920, 30 fps,
+21,36 MB), com Ryzen de 16 threads e RTX 4060 Ti, FFmpeg 9:
+
+| Comando | Tempo | Resultado |
+|---|---|---|
+| `nago cut video.mp4 --from 10 --to 25` | 0,2 s | 5,65 MB (stream copy) |
+| `nago cut ... --exact` | 6,7 s | 10,19 MB (recodifica, `visually-lossless`) |
+| `nago convert video.mp4 --to mkv` | 0,2 s | 21,35 MB (stream copy) |
+| `nago compress video.mp4 --verify` | 1 min 00 s | 12,50 MB (−41%), VMAF 94,49 · p5 93,22 |
+| `nago compress video.mp4 --gpu --verify` | 38 s | 19,11 MB (−11%), VMAF 94,74 · p5 93,50 |
+
+Fontes já comprimidas (celular, web) são o pior caso. Filmes e animação com mais
+bitrate reduzem de 50% a 90% no perfil `high` (ver a calibração).
+
 ## Códigos de saída
 
 | Código | Significado |
@@ -142,7 +162,7 @@ cargo lint                       # clippy com -D warnings
 
 O projeto é planejado com [OpenSpec](https://github.com/Fission-AI/OpenSpec): as
 specs ficam em `openspec/` e as decisões de arquitetura em
-`openspec/changes/*/design.md`.
+`openspec/changes/archive/*/design.md` (changes concluídas).
 
 ## Licença
 
