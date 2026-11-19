@@ -1,0 +1,13 @@
+[package]
+name = "nago-testkit"
+description = "Fixtures sintéticas de mídia para os testes do nago"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[lints]
+workspace = true
+
+[dependencies]
+serde_json = "1.0.154"

@@ -1,0 +1,40 @@
+schema: spec-driven
+
+context: |
+  Language: pt-BR
+  All artifacts must be written in pt-BR.
+  Keep OpenSpec structural headings and SHALL/MUST keywords in English.
+
+  Projeto: "nago" — ferramenta para cortar, converter e comprimir vídeos de forma
+  rápida e simples, reduzindo o tamanho sem perda de qualidade PERCEPTÍVEL.
+
+  Decisões fixas do projeto (não reabrir sem uma change dedicada):
+  - Linguagem: Rust (edition 2024, toolchain stable). Workspace Cargo com crates:
+    nago-core (biblioteca, sem I/O de terminal), nago-cli (binário `nago`) e,
+    depois, nago-tui.
+  - Motor de mídia: binários externos `ffmpeg`/`ffprobe` (>= 6.0) chamados como
+    subprocesso. NÃO usar bindings da libav (ffmpeg-next) por enquanto.
+  - "Sem perder qualidade" significa perceptualmente sem perdas (meta VMAF >= 95
+    por padrão), nunca matematicamente lossless. Stream copy é usado sempre que
+    não houver necessidade de recodificar.
+  - Interface: CLI (clap) primeiro; TUI (ratatui) em uma change posterior sobre o
+    mesmo nago-core.
+  - Async: tokio (process + sync). Erros: thiserror no core, anyhow na CLI.
+    Logs: tracing. Serialização: serde/serde_json.
+  - Plataforma alvo principal: Linux x86_64; macOS/Windows como best effort.
+  - Hardware de referência: NVIDIA RTX 4060 Ti (NVENC com AV1), FFmpeg 9 com
+    libsvtav1, libx265, libx264 e libvmaf.
+
+  Convenções:
+  - Nunca sobrescrever o arquivo de entrada; saídas são escritas em arquivo
+    temporário e renomeadas atomicamente ao final.
+  - Toda construção de linha de comando do ffmpeg é feita por um builder puro e
+    testável (sem executar processo).
+  - Testes de integração usam vídeos sintéticos gerados com `ffmpeg -f lavfi`.
+
+rules:
+  proposal:
+    - Sempre declarar explicitamente o que está fora do escopo
+  tasks:
+    - Quebrar tarefas em blocos de no máximo 2 horas
+    - Cada grupo de tarefas termina com testes que o validam

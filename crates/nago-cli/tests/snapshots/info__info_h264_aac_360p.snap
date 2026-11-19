@@ -1,0 +1,62 @@
+---
+source: crates/nago-cli/tests/info.rs
+expression: v
+---
+{
+  "bit_rate": "[bitrate]",
+  "container": "mp4",
+  "container_long": "QuickTime / MOV",
+  "duration_secs": 10.0,
+  "path": "[caminho]",
+  "size_bytes": "[tamanho]",
+  "start_time_secs": 0.0,
+  "streams": [
+    {
+      "attached_pic": false,
+      "bit_rate": "[bitrate]",
+      "codec": "h264",
+      "codec_long": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+      "default": true,
+      "forced": false,
+      "index": 0,
+      "kind": "video",
+      "language": null,
+      "profile": "High",
+      "title": null,
+      "video": {
+        "bit_depth": 8,
+        "color_primaries": null,
+        "color_range": null,
+        "color_space": null,
+        "color_transfer": null,
+        "content_light": null,
+        "dolby_vision": false,
+        "fps": 30.0,
+        "hdr": null,
+        "height": 360,
+        "mastering_display": null,
+        "pix_fmt": "yuv420p",
+        "rotation": 0,
+        "width": 640
+      }
+    },
+    {
+      "attached_pic": false,
+      "audio": {
+        "channel_layout": "stereo",
+        "channels": 2,
+        "sample_rate": 48000
+      },
+      "bit_rate": "[bitrate]",
+      "codec": "aac",
+      "codec_long": "AAC (Advanced Audio Coding)",
+      "default": true,
+      "forced": false,
+      "index": 1,
+      "kind": "audio",
+      "language": null,
+      "profile": "LC",
+      "title": null
+    }
+  ]
+}
