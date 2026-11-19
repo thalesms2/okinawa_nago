@@ -284,3 +284,27 @@ fn corte_exato_tem_precisao_de_um_frame() {
         .unwrap();
     assert!((audio_dur - 6.0).abs() < 0.1, "áudio {audio_dur}");
 }
+
+/// Texto humano do relatório (caminho e tempo variam).
+#[test]
+fn relatorio_texto_humano_do_corte() {
+    let dir = tempfile::tempdir().unwrap();
+    let input = nago_testkit::fixture_in(nago_testkit::Fixture::MkvMulti, dir.path());
+    let out = assert_cmd::Command::cargo_bin("nago")
+        .unwrap()
+        .args(["cut", "--from", "1", "--to", "3"])
+        .arg(&input)
+        .output()
+        .unwrap();
+    assert!(out.status.success());
+    let text = String::from_utf8(out.stdout).unwrap();
+    let body: Vec<String> = text
+        .lines()
+        .skip(1)
+        .map(|l| match l.rsplit_once(" em ") {
+            Some((head, _)) if l.contains('%') => format!("{head} em [tempo]"),
+            _ => l.to_owned(),
+        })
+        .collect();
+    insta::assert_snapshot!(body.join("\n"));
+}

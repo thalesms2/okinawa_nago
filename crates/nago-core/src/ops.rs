@@ -1,4 +1,8 @@
 //! Operações de alto nível: probe → plano → execução → relatório.
+//!
+//! Cada operação tem duas etapas: `prepare_*` (probe, plano e resolução da saída, sem
+//! executar nada) e [`execute`]. A CLI usa [`compress`]/[`convert`]/[`cut`], que fazem
+//! as duas; a TUI prepara ao editar o formulário e executa quando chega a vez do job.
 
 use std::path::{Path, PathBuf};
 use std::time::Instant;
@@ -6,13 +10,14 @@ use std::time::Instant;
 use crate::caps::Capabilities;
 use crate::container::Container;
 use crate::encoders::Codec;
-use crate::output::{self, DefaultName};
+use crate::output::{self, DefaultName, Reservations};
 use crate::plan::{self, CompressOptions, ConvertOptions, CutOptions, Plan};
-use crate::probe;
+use crate::probe::{self, MediaInfo};
 use crate::profiles::Quality;
 use crate::report::Report;
 use crate::runner::{Runner, TempOutput};
 use crate::timefmt;
+use crate::tools::Tools;
 use crate::vmaf;
 use crate::{Error, Result};
 
@@ -52,17 +57,140 @@ fn file_size(path: &Path) -> u64 {
     std::fs::metadata(path).map(|m| m.len()).unwrap_or(0)
 }
 
-/// Executa o plano gravando num temporário; devolve o temporário pronto para persistir.
-async fn execute(runner: &Runner, plan: &Plan, output: &Path, phase: &str) -> Result<TempOutput> {
+/// Lê o arquivo, a menos que o chamador já tenha o `MediaInfo` dele.
+async fn probe_or(tools: &Tools, input: &Path, known: Option<&MediaInfo>) -> Result<MediaInfo> {
+    match known {
+        Some(info) if info.path == input => Ok(info.clone()),
+        _ => probe::probe(tools, input).await,
+    }
+}
+
+/// O que é específico de cada operação num [`Prepared`].
+#[derive(Debug, Clone)]
+pub enum PreparedKind {
+    Compress {
+        quality: Quality,
+        verify: bool,
+        force: bool,
+    },
+    Convert,
+    Cut {
+        exact: bool,
+        requested_start: f64,
+        /// Início real da saída (keyframe no corte rápido).
+        actual_start: f64,
+        end: f64,
+    },
+}
+
+/// Uma operação validada e pronta para executar.
+#[derive(Debug, Clone)]
+pub struct Prepared {
+    pub kind: PreparedKind,
+    pub info: MediaInfo,
+    pub plan: Plan,
+    /// Caminho final da saída (já resolvido, livre no momento da preparação).
+    pub output: PathBuf,
+    pub phase: &'static str,
+}
+
+impl Prepared {
+    pub fn input(&self) -> &Path {
+        &self.plan.input
+    }
+
+    /// Encoder de vídeo que será usado (`None` quando o vídeo é copiado).
+    pub fn encoder(&self) -> Option<&str> {
+        self.plan.video_encoder.as_deref()
+    }
+
+    pub fn warnings(&self) -> &[String] {
+        &self.plan.warnings
+    }
+
+    pub fn operation(&self) -> &'static str {
+        match self.kind {
+            PreparedKind::Compress { .. } => "compress",
+            PreparedKind::Convert => "convert",
+            PreparedKind::Cut { .. } => "cut",
+        }
+    }
+}
+
+/// Executa uma operação preparada: grava num temporário, aplica as verificações e
+/// persiste a saída.
+pub async fn execute(runner: &Runner, prepared: &Prepared) -> Result<Report> {
+    let started = Instant::now();
+    let plan = &prepared.plan;
+    let input = prepared.input();
     for w in &plan.warnings {
         runner.warn(w.clone());
     }
-    let temp = TempOutput::new(output)?;
+    let temp = TempOutput::new(&prepared.output)?;
     let args = plan::build_args(plan, temp.path());
     runner
-        .run_ffmpeg(phase, &args, plan.expected_duration)
+        .run_ffmpeg(prepared.phase, &args, plan.expected_duration)
         .await?;
-    Ok(temp)
+
+    let input_size = file_size(input);
+    let output_size = temp.size();
+    if let PreparedKind::Compress { force: false, .. } = prepared.kind
+        && output_size >= input_size
+    {
+        drop(temp);
+        return Err(Error::NotSmaller {
+            input_size,
+            output_size,
+        });
+    }
+    let output = temp.persist_like(input)?;
+
+    let mut report = Report::new(prepared.operation(), plan);
+    match prepared.kind {
+        PreparedKind::Compress {
+            quality,
+            verify: true,
+            ..
+        } => {
+            let info = &prepared.info;
+            let score = vmaf::measure(runner, &output, input, info.duration_secs).await?;
+            report.vmaf_mean = Some(score.mean);
+            report.vmaf_p5 = Some(score.p5);
+            report.vmaf_target = Some(quality.vmaf_target());
+            if let Some(msg) = vmaf_warning(score.mean, quality) {
+                runner.warn(msg.clone());
+                report.warnings.push(msg);
+            }
+            if info.primary_video().is_some_and(|v| v.is_hdr()) {
+                let msg = "o modelo VMAF padrão é SDR: para vídeo HDR o valor é apenas indicativo"
+                    .to_owned();
+                runner.warn(msg.clone());
+                report.warnings.push(msg);
+            }
+        }
+        PreparedKind::Cut {
+            requested_start,
+            actual_start,
+            end,
+            ..
+        } => {
+            report.requested_start_secs = Some(requested_start);
+            report.actual_start_secs = Some(actual_start);
+            report.duration_secs = Some(end - actual_start);
+        }
+        _ => {}
+    }
+    report.output = output;
+    report.set_sizes(input_size, output_size);
+    report.elapsed_secs = started.elapsed().as_secs_f64();
+    Ok(report)
+}
+
+/// Executa contando no tempo do relatório também a preparação (iniciada em `started`).
+async fn execute_since(runner: &Runner, prepared: &Prepared, started: Instant) -> Result<Report> {
+    let mut report = execute(runner, prepared).await?;
+    report.elapsed_secs = started.elapsed().as_secs_f64();
+    Ok(report)
 }
 
 // ---------------------------------------------------------------------------
@@ -79,13 +207,14 @@ pub struct CompressRequest {
     pub force: bool,
 }
 
-pub async fn compress(
-    runner: &Runner,
+pub async fn prepare_compress(
+    tools: &Tools,
     caps: &Capabilities,
     req: &CompressRequest,
-) -> Result<Report> {
-    let started = Instant::now();
-    let info = probe::probe(runner.tools(), &req.input).await?;
+    known: Option<&MediaInfo>,
+    reserved: &Reservations,
+) -> Result<Prepared> {
+    let info = probe_or(tools, &req.input, known).await?;
     if req.verify && !caps.vmaf {
         return Err(Error::Unsupported(
             "--verify precisa de um ffmpeg compilado com libvmaf, que não está disponível neste ffmpeg".into(),
@@ -107,42 +236,29 @@ pub async fn compress(
             ext: &plan.ext,
         },
         req.output.overwrite,
+        reserved,
     )?;
+    Ok(Prepared {
+        kind: PreparedKind::Compress {
+            quality: req.quality,
+            verify: req.verify,
+            force: req.force,
+        },
+        info,
+        plan,
+        output,
+        phase: "codificando",
+    })
+}
 
-    let temp = execute(runner, &plan, &output, "codificando").await?;
-    let input_size = file_size(&req.input);
-    let output_size = temp.size();
-    if output_size >= input_size && !req.force {
-        drop(temp);
-        return Err(Error::NotSmaller {
-            input_size,
-            output_size,
-        });
-    }
-    let output = temp.persist_like(&req.input)?;
-
-    let mut report = Report::new("compress", &plan);
-    if req.verify {
-        let score = vmaf::measure(runner, &output, &req.input, info.duration_secs).await?;
-        let target = req.quality.vmaf_target();
-        report.vmaf_mean = Some(score.mean);
-        report.vmaf_p5 = Some(score.p5);
-        report.vmaf_target = Some(target);
-        if let Some(msg) = vmaf_warning(score.mean, req.quality) {
-            runner.warn(msg.clone());
-            report.warnings.push(msg);
-        }
-        if info.primary_video().is_some_and(|v| v.is_hdr()) {
-            let msg =
-                "o modelo VMAF padrão é SDR: para vídeo HDR o valor é apenas indicativo".to_owned();
-            runner.warn(msg.clone());
-            report.warnings.push(msg);
-        }
-    }
-    report.output = output;
-    report.set_sizes(input_size, output_size);
-    report.elapsed_secs = started.elapsed().as_secs_f64();
-    Ok(report)
+pub async fn compress(
+    runner: &Runner,
+    caps: &Capabilities,
+    req: &CompressRequest,
+) -> Result<Report> {
+    let started = Instant::now();
+    let prepared = prepare_compress(runner.tools(), caps, req, None, &Reservations::new()).await?;
+    execute_since(runner, &prepared, started).await
 }
 
 /// Aviso quando o VMAF médio fica abaixo da meta do perfil.
@@ -173,8 +289,13 @@ pub struct ConvertRequest {
     pub compat: bool,
 }
 
-pub async fn convert(runner: &Runner, caps: &Capabilities, req: &ConvertRequest) -> Result<Report> {
-    let started = Instant::now();
+pub async fn prepare_convert(
+    tools: &Tools,
+    caps: &Capabilities,
+    req: &ConvertRequest,
+    known: Option<&MediaInfo>,
+    reserved: &Reservations,
+) -> Result<Prepared> {
     let target = match &req.format {
         Some(f) => Container::parse(f).ok_or_else(|| {
             Error::usage(format!(
@@ -189,7 +310,7 @@ pub async fn convert(runner: &Runner, caps: &Capabilities, req: &ConvertRequest)
             ))
         })?,
     };
-    let info = probe::probe(runner.tools(), &req.input).await?;
+    let info = probe_or(tools, &req.input, known).await?;
     let opts = ConvertOptions {
         target,
         audio_track: req.audio_track,
@@ -204,21 +325,26 @@ pub async fn convert(runner: &Runner, caps: &Capabilities, req: &ConvertRequest)
             ext: target.ext(),
         },
         req.output.overwrite,
+        reserved,
     )?;
     let phase = if plan.transcodes_anything() {
         "convertendo"
     } else {
         "remuxando"
     };
-    let temp = execute(runner, &plan, &output, phase).await?;
-    let output_size = temp.size();
-    let output = temp.persist_like(&req.input)?;
+    Ok(Prepared {
+        kind: PreparedKind::Convert,
+        info,
+        plan,
+        output,
+        phase,
+    })
+}
 
-    let mut report = Report::new("convert", &plan);
-    report.output = output;
-    report.set_sizes(file_size(&req.input), output_size);
-    report.elapsed_secs = started.elapsed().as_secs_f64();
-    Ok(report)
+pub async fn convert(runner: &Runner, caps: &Capabilities, req: &ConvertRequest) -> Result<Report> {
+    let started = Instant::now();
+    let prepared = prepare_convert(runner.tools(), caps, req, None, &Reservations::new()).await?;
+    execute_since(runner, &prepared, started).await
 }
 
 // ---------------------------------------------------------------------------
@@ -233,16 +359,21 @@ pub struct CutRequest {
     pub exact: bool,
 }
 
-pub async fn cut(runner: &Runner, caps: &Capabilities, req: &CutRequest) -> Result<Report> {
-    let started = Instant::now();
+pub async fn prepare_cut(
+    tools: &Tools,
+    caps: &Capabilities,
+    req: &CutRequest,
+    known: Option<&MediaInfo>,
+    reserved: &Reservations,
+) -> Result<Prepared> {
     let container = req.output.container()?;
-    let info = probe::probe(runner.tools(), &req.input).await?;
+    let info = probe_or(tools, &req.input, known).await?;
     let (range, end_warning) =
         plan::resolve_cut_range(info.duration_secs, req.from, req.to, req.duration)?;
 
     let mut extra_warnings: Vec<String> = end_warning.into_iter().collect();
     let keyframe_start = {
-        let kf = probe::keyframe_at_or_before(runner.tools(), &info, range.start).await?;
+        let kf = probe::keyframe_at_or_before(tools, &info, range.start).await?;
         if let Some(kf) = kf
             && !req.exact
             && range.start - kf > 0.001
@@ -272,29 +403,35 @@ pub async fn cut(runner: &Runner, caps: &Capabilities, req: &CutRequest) -> Resu
             ext: &plan.ext,
         },
         req.output.overwrite,
+        reserved,
     )?;
-    let phase = if req.exact {
-        "cortando (exato)"
-    } else {
-        "cortando"
-    };
-    let temp = execute(runner, &plan, &output, phase).await?;
-    let output_size = temp.size();
-    let output = temp.persist_like(&req.input)?;
-
     let actual_start = if req.exact {
         range.start
     } else {
         keyframe_start.unwrap_or(range.start)
     };
-    let mut report = Report::new("cut", &plan);
-    report.output = output;
-    report.set_sizes(file_size(&req.input), output_size);
-    report.requested_start_secs = Some(range.start);
-    report.actual_start_secs = Some(actual_start);
-    report.duration_secs = Some(range.end - actual_start);
-    report.elapsed_secs = started.elapsed().as_secs_f64();
-    Ok(report)
+    Ok(Prepared {
+        kind: PreparedKind::Cut {
+            exact: req.exact,
+            requested_start: range.start,
+            actual_start,
+            end: range.end,
+        },
+        info,
+        plan,
+        output,
+        phase: if req.exact {
+            "cortando (exato)"
+        } else {
+            "cortando"
+        },
+    })
+}
+
+pub async fn cut(runner: &Runner, caps: &Capabilities, req: &CutRequest) -> Result<Report> {
+    let started = Instant::now();
+    let prepared = prepare_cut(runner.tools(), caps, req, None, &Reservations::new()).await?;
+    execute_since(runner, &prepared, started).await
 }
 
 #[cfg(test)]

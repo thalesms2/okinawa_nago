@@ -1,0 +1,34 @@
+---
+source: crates/nago-tui/tests/queue.rs
+expression: screen
+---
+ nago  fila                                                               fila: 1 em execução · 1 pendente(s) · 3 total
+┌ fila ──────────────────────────────────────────────┐┌ comprimir a.mp4 ───────────────────────────────────────────────┐
+│ ✓ comprimir a.mp4  concluído                       ││✓ /v/a.compressed.mp4                                           │
+│ ▶ comprimir b.mp4  preparando                      ││  10 MB → 5.80 MB (-42%) em 1m 05s                              │
+│ · cortar c.mp4  pendente                           ││  encoder: libsvtav1 · perfil high                              │
+│                                                    ││  streams: #0 vídeo h264 → libsvtav1 · #1 áudio aac copiado     │
+│                                                    ││  VMAF: média 90.12 · p5 86.40 (meta 93 ✗)                      │
+│                                                    ││⚠ VMAF médio 90.12 ficou abaixo da meta 93 do perfil high;      │
+│                                                    ││experimente --quality visually-lossless                         │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+└────────────────────────────────────────────────────┘└────────────────────────────────────────────────────────────────┘
+ x cancelar · d remover · Tab voltar · ? ajuda · q sair

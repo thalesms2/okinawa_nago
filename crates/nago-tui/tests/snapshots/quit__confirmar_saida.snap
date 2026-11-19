@@ -1,0 +1,34 @@
+---
+source: crates/nago-tui/tests/quit.rs
+expression: screen
+---
+ nago  /v                                                                 fila: 1 em execução · 2 pendente(s) · 3 total
+┌ arquivos de mídia ─────────────────────────────────┐┌ informações ───────────────────────────────────────────────────┐
+│lendo a pasta…                                      ││pasta ..                                                        │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                        ┌ confirmar saída ───────────────────────────────────────────────────┐                        │
+│                        │Sair agora?                                                         │                        │
+│                        │                                                                    │                        │
+│                        │• o job em execução será cancelado (sem deixar arquivo parcial)     │                        │
+│                        │• 2 job(s) pendente(s) serão descartados                            │                        │
+│                        │                                                                    │                        │
+│                        │s / Enter: sair    n / Esc: continuar                               │                        │
+│                        └────────────────────────────────────────────────────────────────────┘                        │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+└────────────────────────────────────────────────────┘└────────────────────────────────────────────────────────────────┘
+ c cortar · v converter · z comprimir · Espaço marcar · Tab fila · ? ajuda · q sair

@@ -1,0 +1,33 @@
+---
+source: crates/nago-tui/tests/cut.rs
+expression: "screen.lines().skip(1).map(|l| format!(\"{l}\\n\")).collect::<String>()"
+---
+┌ Cortar longo.mp4 ────────────────────────────────────────┐┌ corte ───────────────────────────────────────────────────┐
+│ início           00:00:42.000▏                           ││trecho: 00:00:42.000 → 00:01:00.000 (18.0s)               │
+│ fim              00:01:00.000                            ││arquivo: 00:01:00.000                                     │
+│ exato ao frame   [ ] não                                 ││4 keyframes ( [ / ] para saltar )                         │
+│ saída            automático (<nome>.cut.<ext>)           ││corte rápido começa no keyframe 00:00:38.500 (3.5 s antes)│
+│ sobrescrever     [ ] não                                 ││⚠ diferença maior que 1 s: considere o modo exato ao frame│
+└──────────────────────────────────────────────────────────┘│                                                          │
+┌ resultado previsto ──────────────────────────────────────┐│                                                          │
+│verificando…                                              ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+└──────────────────────────────────────────────────────────┘└──────────────────────────────────────────────────────────┘
+ Enter enfileirar · Esc voltar · ? ajuda

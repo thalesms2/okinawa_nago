@@ -3,7 +3,7 @@
 Corte, converta e comprima vídeos de forma rápida e simples, deixando o arquivo
 menor **sem perda de qualidade perceptível**.
 
-O `nago` é uma CLI em Rust que usa o FFmpeg instalado na máquina e toma por você as
+O `nago` é uma CLI (com modo interativo no terminal) em Rust que usa o FFmpeg instalado na máquina e toma por você as
 decisões chatas: CRF, preset, pixel format, keyframes, HDR, compatibilidade de
 container e aceleração por GPU.
 
@@ -125,6 +125,92 @@ o que é incompatível, informando o quê e por quê. Exemplos: áudio PCM vira 
 MP4; legendas SRT viram `mov_text` (MP4) ou WebVTT (WebM); legendas de imagem (PGS)
 que o destino não suporta são descartadas com aviso. Saídas MP4/MOV/M4A já saem
 otimizadas para streaming (índice no início do arquivo).
+
+## Modo interativo (TUI)
+
+Rodar `nago` sem argumentos num terminal abre o modo interativo. Também dá para abrir
+com arquivos já selecionados: `nago tui video1.mp4 video2.mkv`. Em scripts e pipes
+(sem terminal), `nago` sem subcomando continua mostrando a ajuda e saindo com código 2.
+
+O fluxo é: escolher arquivos no navegador, ver os metadados, abrir uma operação, conferir
+o resultado previsto e enfileirar. A fila roda um job por vez enquanto você continua
+navegando e enfileirando.
+
+- **Navegador**: lista pastas e arquivos de mídia da pasta atual (`.` mostra todos) e
+  mostra ao lado o mesmo conteúdo do `nago info`. `Espaço` marca vários arquivos: a
+  operação gera um job por arquivo.
+- **Formulários**: as mesmas opções e padrões da CLI. Antes de enfileirar, aparecem o
+  caminho de saída, o encoder (software ou GPU) e os streams. Erros aparecem no próprio
+  campo, com a mesma mensagem da CLI.
+- **Corte**: início e fim ajustáveis por frame, por segundo ou de keyframe em keyframe.
+  O painel avisa onde o corte rápido vai começar de fato (o keyframe anterior) e
+  sugere o modo exato quando a diferença passa de 1 s.
+- **Miniatura**: em terminais com protocolo de imagem (kitty, Ghostty, WezTerm, iTerm2
+  ou terminais com sixel), o corte mostra o frame do início ou do fim. Em terminais sem
+  suporte, só os tempos são exibidos. `NAGO_TUI_IMAGES=off|kitty|sixel|iterm2` desliga
+  a miniatura ou força um protocolo (útil dentro do tmux, onde a detecção pode falhar).
+- **Fila** (`Tab`): estado, fase, progresso, velocidade e tempo restante de cada job e,
+  ao terminar, o mesmo relatório da CLI (incluindo o VMAF). Jobs que falham mostram o
+  erro e o fim do log do ffmpeg, e a fila segue para o próximo.
+
+Sair com jobs ativos pede confirmação. O job em execução é cancelado sem deixar arquivo
+parcial, os pendentes são descartados e o código de saída é 130. Sem jobs interrompidos
+o código é 0, mesmo que algum job tenha falhado. Com `-v`, os logs vão para
+`$XDG_STATE_HOME/nago/tui.log`.
+
+**Navegador**
+
+| Teclas | Ação |
+|---|---|
+| `↑/↓` `k/j` | navegar |
+| `Enter` `l` | entrar na pasta |
+| `Backspace` `h` | pasta pai |
+| `Espaço` | marcar/desmarcar arquivo |
+| `.` | mostrar todos os arquivos / só mídia |
+| `c` | cortar |
+| `v` | converter |
+| `z` | comprimir |
+| `Tab` | ver a fila |
+| `q` | sair |
+
+**Formulários (converter, comprimir)**
+
+| Teclas | Ação |
+|---|---|
+| `↑/↓` `Tab/Shift+Tab` | campo anterior/seguinte |
+| `←/→` `Espaço` | mudar opção / alternar |
+| `Backspace` `Ctrl+U` | apagar caractere / limpar campo |
+| `Enter` | enfileirar |
+| `Esc` | voltar ao navegador |
+
+**Corte**
+
+| Teclas | Ação |
+|---|---|
+| `i / o` | editar início / fim |
+| `< / >` | 1 frame para trás / para frente |
+| `←/→` | 1 s para trás / para frente |
+| `Shift+←/→` | 10 s para trás / para frente |
+| `[ / ]` | keyframe anterior / seguinte |
+| `Enter` | enfileirar |
+| `Esc` | voltar ao navegador |
+
+**Fila**
+
+| Teclas | Ação |
+|---|---|
+| `↑/↓` `k/j` | selecionar job |
+| `x` | cancelar o job em execução |
+| `d` | remover o job selecionado (pendente ou terminado) |
+| `Tab` `Esc` | voltar ao navegador |
+| `q` | sair |
+
+**Em qualquer tela**
+
+| Teclas | Ação |
+|---|---|
+| `?` | mostrar/ocultar esta ajuda |
+| `Ctrl+C` | sair (duas vezes seguidas confirma) |
 
 ## Desempenho
 

@@ -13,8 +13,9 @@ pub struct Cli {
     #[command(flatten)]
     pub global: GlobalOpts,
 
+    /// Sem subcomando, num terminal, abre o modo interativo (TUI).
     #[command(subcommand)]
-    pub command: Command,
+    pub command: Option<Command>,
 }
 
 #[derive(Args, Debug, Clone)]
@@ -44,6 +45,14 @@ pub enum Command {
     Compress(CompressArgs),
     /// Mostra o ffmpeg encontrado, os encoders disponíveis e se cada um funciona
     Doctor,
+    /// Abre o modo interativo (TUI), opcionalmente com arquivos já selecionados
+    Tui(TuiArgs),
+}
+
+#[derive(Args, Debug)]
+pub struct TuiArgs {
+    /// Arquivos a selecionar ao abrir
+    pub files: Vec<PathBuf>,
 }
 
 #[derive(Args, Debug)]

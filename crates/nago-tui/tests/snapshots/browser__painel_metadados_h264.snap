@@ -1,0 +1,33 @@
+---
+source: crates/nago-tui/tests/browser.rs
+expression: screen
+---
+┌ arquivos de mídia ─────────────────────────────────┐┌ informações ───────────────────────────────────────────────────┐
+│    ../                                             ││h264_aac_360p.mp4                                               │
+│[ ] h264_aac_360p.mp4                               ││  container  mp4 (QuickTime / MOV)                              │
+│                                                    ││  duração    00:00:10.000   tamanho 1.37 MB   bitrate 1.1 Mb/s  │
+│                                                    ││                                                                │
+│                                                    ││  #0  vídeo    h264 (High)  640x360  30 fps  8-bit  959 kb/s    │
+│                                                    ││[padrão]                                                        │
+│                                                    ││  #1  áudio    aac (LC)  2 canais (stereo)  48 kHz  128 kb/s    │
+│                                                    ││[padrão]                                                        │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+└────────────────────────────────────────────────────┘└────────────────────────────────────────────────────────────────┘
+ c cortar · v converter · z comprimir · Espaço marcar · Tab fila · ? ajuda · q sair

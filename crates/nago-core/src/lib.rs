@@ -5,11 +5,13 @@
 
 pub mod caps;
 pub mod container;
+pub mod display;
 pub mod encoders;
 pub mod error;
 pub mod ops;
 pub mod output;
 pub mod plan;
+pub mod preview;
 pub mod probe;
 pub mod profiles;
 pub mod report;

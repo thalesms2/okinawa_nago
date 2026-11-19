@@ -80,3 +80,31 @@ fn ffmpeg_antigo_informa_versao_minima_com_codigo_1() {
         .code(1)
         .stderr(predicate::str::contains("5.1.4").and(predicate::str::contains("6.0.0")));
 }
+
+/// `nago` sem subcomando fora de um terminal (ex.: `nago | cat`) mostra a ajuda e sai
+/// com 2, sem abrir a TUI.
+#[test]
+fn sem_subcomando_fora_de_tty_mostra_ajuda_com_codigo_2() {
+    nago()
+        .assert()
+        .code(2)
+        .stderr(predicate::str::contains("Usage").and(predicate::str::contains("tui")));
+}
+
+#[test]
+fn tui_fora_de_tty_e_recusada_com_codigo_2() {
+    nago()
+        .args(["tui"])
+        .assert()
+        .code(2)
+        .stderr(predicate::str::contains("precisa de um terminal"));
+}
+
+#[test]
+fn tui_com_json_e_erro_de_uso() {
+    nago()
+        .args(["--json", "tui"])
+        .assert()
+        .code(2)
+        .stderr(predicate::str::contains("--json"));
+}

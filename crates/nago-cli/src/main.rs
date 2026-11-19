@@ -1,12 +1,14 @@
 mod args;
 mod progress;
-mod render;
 
 use std::path::PathBuf;
 use std::process::ExitCode;
 
-use clap::Parser;
+use std::io::IsTerminal;
+
+use clap::{CommandFactory, Parser};
 use nago_core::caps;
+use nago_core::display;
 use nago_core::encoders::Codec;
 use nago_core::ops::{self, CompressRequest, ConvertRequest, CutRequest, OutputOptions};
 use nago_core::profiles::Quality;
@@ -23,6 +25,9 @@ use args::{
 fn main() -> ExitCode {
     // clap já sai com código 2 em erro de uso e 0 em --help/--version.
     let cli = Cli::parse();
+    if matches!(cli.command, None | Some(Command::Tui(_))) {
+        return tui_main(cli);
+    }
     init_tracing(cli.global.verbose);
 
     let runtime = match tokio::runtime::Builder::new_multi_thread()
@@ -46,6 +51,98 @@ fn main() -> ExitCode {
             ExitCode::from(exit_code(&err))
         }
     }
+}
+
+/// Modo interativo: `nago` sem subcomando num terminal, ou `nago tui [arquivos...]`.
+fn tui_main(cli: Cli) -> ExitCode {
+    let files = match cli.command {
+        Some(Command::Tui(args)) => Some(args.files),
+        _ => None,
+    };
+    let explicit = files.is_some();
+    if cli.global.json {
+        eprintln!("erro: --json não se aplica ao modo interativo");
+        return ExitCode::from(2);
+    }
+    let tty = std::io::stdin().is_terminal() && std::io::stdout().is_terminal();
+    if !tty {
+        if explicit {
+            eprintln!(
+                "erro: o modo interativo precisa de um terminal (stdin e stdout); \
+                 em scripts, use os subcomandos (nago --help)"
+            );
+        } else {
+            eprint!("{}", Cli::command().render_help());
+        }
+        return ExitCode::from(2);
+    }
+    init_tui_tracing(cli.global.verbose);
+    let files = files
+        .unwrap_or_default()
+        .into_iter()
+        .map(|f| std::path::absolute(&f).unwrap_or(f))
+        .collect();
+    let dir = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+    let runtime = match tokio::runtime::Builder::new_multi_thread()
+        .enable_all()
+        .build()
+    {
+        Ok(rt) => rt,
+        Err(e) => {
+            eprintln!("erro: não foi possível iniciar o runtime: {e}");
+            return ExitCode::from(1);
+        }
+    };
+    let opts = nago_tui::TuiOptions { dir, files };
+    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        runtime.block_on(nago_tui::run(opts))
+    }));
+    runtime.shutdown_timeout(std::time::Duration::from_secs(1));
+    match result {
+        Ok(Ok(exit)) => ExitCode::from(exit.code),
+        Ok(Err(err)) => {
+            print_error(&anyhow::Error::new(err));
+            ExitCode::from(1)
+        }
+        // A mensagem do pânico já foi impressa pelo hook, depois de restaurar o terminal.
+        Err(_) => {
+            eprintln!("erro interno inesperado no modo interativo");
+            ExitCode::from(1)
+        }
+    }
+}
+
+/// Na TUI, logs não podem ir para o terminal: vão para `$XDG_STATE_HOME/nago/tui.log`.
+fn init_tui_tracing(verbose: bool) {
+    let Some(dir) = dirs::state_dir()
+        .or_else(dirs::cache_dir)
+        .map(|d| d.join("nago"))
+    else {
+        return;
+    };
+    if std::fs::create_dir_all(&dir).is_err() {
+        return;
+    }
+    let Ok(file) = std::fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(dir.join("tui.log"))
+    else {
+        return;
+    };
+    let filter = if verbose {
+        "nago_core=debug,nago_tui=debug,nago=debug"
+    } else {
+        "error"
+    };
+    let _ = tracing_subscriber::fmt()
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::try_from_env("NAGO_LOG")
+                .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new(filter)),
+        )
+        .with_writer(std::sync::Mutex::new(file))
+        .with_ansi(false)
+        .try_init();
 }
 
 fn init_tracing(verbose: bool) {
@@ -95,7 +192,10 @@ async fn run(cli: Cli) -> anyhow::Result<()> {
     // Todo comando depende do ffmpeg: valida antes de qualquer operação de mídia.
     let tools = Tools::locate().await?;
     let g = cli.global.clone();
-    match cli.command {
+    let Some(command) = cli.command else {
+        unreachable!("sem subcomando o modo interativo é aberto antes");
+    };
+    match command {
         Command::Info(args) => info(&tools, &g, args).await,
         Command::Doctor => doctor(&tools, &g).await,
         Command::Cut(args) => {
@@ -119,6 +219,7 @@ async fn run(cli: Cli) -> anyhow::Result<()> {
             })
             .await
         }
+        Command::Tui(_) => unreachable!("o modo interativo é aberto antes"),
     }
 }
 
@@ -201,7 +302,7 @@ where
     if g.json {
         println!("{}", serde_json::to_string_pretty(&report)?);
     } else {
-        print!("{}", render::report(&report));
+        print!("{}", display::to_text(&display::report(&report)));
     }
     Ok(())
 }
@@ -243,7 +344,7 @@ async fn info(tools: &Tools, g: &GlobalOpts, args: InfoArgs) -> anyhow::Result<(
     if g.json {
         println!("{}", serde_json::to_string_pretty(&info)?);
     } else {
-        print!("{}", render::media_info(&info));
+        print!("{}", display::to_text(&display::media_info(&info)));
     }
     Ok(())
 }

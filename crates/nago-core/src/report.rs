@@ -8,7 +8,7 @@ use crate::plan::{Action, Plan};
 use crate::probe::StreamKind;
 use crate::profiles::Quality;
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct Report {
     pub operation: &'static str,
     pub input: PathBuf,
@@ -37,7 +37,7 @@ pub struct Report {
     pub vmaf_target: Option<f64>,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct StreamReport {
     pub index: usize,
     pub kind: StreamKind,

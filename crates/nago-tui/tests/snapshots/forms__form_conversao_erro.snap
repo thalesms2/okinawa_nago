@@ -1,0 +1,34 @@
+---
+source: crates/nago-tui/tests/forms.rs
+expression: "stable_screen(&h, tmp.path())"
+---
+ nago  Converter sem_audio.mp4                                            fila: 0 em execução · 0 pendente(s) · 0 total
+┌ Converter sem_audio.mp4 ─────────────────────────────────┐┌ informações ─────────────────────────────────────────────┐
+│ formato          ◂ m4a ▸                                 ││lendo…                                                    │
+│   ✗ o arquivo não tem faixa de áudio para extrair        ││                                                          │
+│ faixa de áudio   todas                                   ││                                                          │
+│ compatibilidade  [ ] não                                 ││                                                          │
+│ saída            automático (<nome>.<formato>)           ││                                                          │
+│ sobrescrever     [ ] não                                 ││                                                          │
+└──────────────────────────────────────────────────────────┘│                                                          │
+┌ resultado previsto ──────────────────────────────────────┐│                                                          │
+│✗ o arquivo não tem faixa de áudio para extrair           ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+│                                                          ││                                                          │
+└──────────────────────────────────────────────────────────┘└──────────────────────────────────────────────────────────┘
+ corrija o campo destacado antes de enfileirar

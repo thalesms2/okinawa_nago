@@ -1,0 +1,7 @@
+---
+source: crates/nago-cli/tests/cut.rs
+expression: "body.join(\"\\n\")"
+---
+  708.94 kB → 364.88 kB (-49%) em [tempo]
+  trecho: 00:00:00.000 → 00:00:03.000 (3.0s), pedido a partir de 00:00:01.000
+  streams: #0 vídeo h264 copiado · #1 áudio aac copiado · #2 áudio aac copiado · #3 legenda subrip copiado · #4 legenda subrip copiado

@@ -18,6 +18,8 @@ pub struct Capabilities {
     /// Todos os encoders compilados (vídeo, áudio, legenda).
     pub compiled: BTreeSet<String>,
     pub vmaf: bool,
+    /// Filtro `zscale` (zimg), usado no tonemap HDR → SDR das miniaturas.
+    pub zscale: bool,
     /// Resultado do teste real de cada encoder de hardware compilado.
     pub hardware: Vec<HwStatus>,
 }
@@ -30,9 +32,14 @@ pub struct HwStatus {
     pub reason: Option<String>,
 }
 
+/// Muda sempre que [`Capabilities`] ganha campos.
+pub const CACHE_FORMAT: u32 = 2;
+
 /// Identifica o binário do ffmpeg para invalidar o cache quando ele muda.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct CacheKey {
+    /// Versão do formato do cache: caches de versões anteriores são redetectados.
+    pub format: u32,
     pub ffmpeg: PathBuf,
     pub mtime_secs: u64,
     pub version: String,
@@ -60,6 +67,7 @@ impl CacheKey {
             .map(|d| d.as_secs())
             .unwrap_or(0);
         CacheKey {
+            format: CACHE_FORMAT,
             ffmpeg,
             mtime_secs,
             version: tools.version.to_string(),
@@ -127,6 +135,7 @@ pub async fn detect(tools: &Tools) -> Result<Capabilities> {
     let filters_out = ffmpeg_output(&tools.ffmpeg, &["-hide_banner", "-filters"]).await?;
     let compiled = parse_encoders(&encoders_out);
     let vmaf = has_filter(&filters_out, "libvmaf");
+    let zscale = has_filter(&filters_out, "zscale");
 
     let candidates: Vec<Encoder> = VIDEO_ENCODERS
         .into_iter()
@@ -141,6 +150,7 @@ pub async fn detect(tools: &Tools) -> Result<Capabilities> {
         key: CacheKey::for_tools(tools),
         compiled,
         vmaf,
+        zscale,
         hardware,
     })
 }
@@ -388,12 +398,14 @@ pub(crate) mod tests {
             .collect();
         Capabilities {
             key: CacheKey {
+                format: CACHE_FORMAT,
                 ffmpeg: "/usr/bin/ffmpeg".into(),
                 mtime_secs: 1,
                 version: "9.0.2".into(),
             },
             compiled,
             vmaf: true,
+            zscale: true,
             hardware,
         }
     }
@@ -420,6 +432,32 @@ pub(crate) mod tests {
             ],
             &["av1_nvenc", "hevc_nvenc", "h264_nvenc"],
         )
+    }
+
+    #[test]
+    fn filtros_do_ffmpeg9() {
+        let text = include_str!("../tests/data/filters_ffmpeg9.txt");
+        assert!(has_filter(text, "zscale"));
+        assert!(has_filter(text, "libvmaf"));
+        assert!(has_filter(text, "tonemap"));
+        assert!(!has_filter(text, "zscal"));
+        assert!(!has_filter(text, "filtro_inexistente"));
+    }
+
+    #[test]
+    fn cache_de_formato_antigo_e_redetectado() {
+        let dir = tempfile::tempdir().unwrap();
+        let caps = full_caps();
+        save_cache(dir.path(), &caps).unwrap();
+        assert!(load_cached(dir.path(), &caps.key).is_some());
+        // cache gravado antes do campo `format`/`zscale` existir
+        let mut old: serde_json::Value =
+            serde_json::from_str(&std::fs::read_to_string(dir.path().join("caps.json")).unwrap())
+                .unwrap();
+        old["key"].as_object_mut().unwrap().remove("format");
+        old.as_object_mut().unwrap().remove("zscale");
+        std::fs::write(dir.path().join("caps.json"), old.to_string()).unwrap();
+        assert!(load_cached(dir.path(), &caps.key).is_none());
     }
 
     #[test]

@@ -1,0 +1,34 @@
+---
+source: crates/nago-tui/tests/queue.rs
+expression: "screen.lines().map(|l| l.split_whitespace().collect::<Vec<_>>().join(\" \") +\n\"\\n\").collect::<String>()"
+---
+nago fila fila: 0 em execução · 0 pendente(s) · 2 total
+┌ fila ──────────────────────────────────────────────┐┌ converter h264_aac_360p.mp4 ───────────────────────────────────┐
+│ ✗ converter h264_aac_360p.mp4 falhou ││✗ o ffmpeg falhou (remuxando, código 1) │
+│ ✗ cortar h264_aac_360p.mp4 falhou ││últimas linhas do ffmpeg: │
+│ ││ Error while decoding stream #0:0: Invalid data found │
+│ ││ Conversion failed! │
+│ ││ │
+│ ││ │
+│ ││ │
+│ ││ │
+│ ││ │
+│ ││ │
+│ ││ │
+│ ││ │
+│ ││ │
+│ ││ │
+│ ││ │
+│ ││ │
+│ ││ │
+│ ││ │
+│ ││ │
+│ ││ │
+│ ││ │
+│ ││ │
+│ ││ │
+│ ││ │
+│ ││ │
+│ ││ │
+└────────────────────────────────────────────────────┘└────────────────────────────────────────────────────────────────┘
+x cancelar · d remover · Tab voltar · ? ajuda · q sair

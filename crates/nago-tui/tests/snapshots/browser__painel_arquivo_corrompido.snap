@@ -1,0 +1,34 @@
+---
+source: crates/nago-tui/tests/browser.rs
+expression: h.screen()
+---
+ nago  /v                                                                 fila: 0 em execução · 0 pendente(s) · 0 total
+┌ arquivos de mídia ─────────────────────────────────┐┌ informações ───────────────────────────────────────────────────┐
+│    ../                                             ││não foi possível ler este arquivo:                              │
+│[ ] corrompido.mp4                                  ││/v/corrompido.mp4 não é uma mídia suportada                     │
+│[ ] ok.mp4                                          ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+│                                                    ││                                                                │
+└────────────────────────────────────────────────────┘└────────────────────────────────────────────────────────────────┘
+ c cortar · v converter · z comprimir · Espaço marcar · Tab fila · ? ajuda · q sair

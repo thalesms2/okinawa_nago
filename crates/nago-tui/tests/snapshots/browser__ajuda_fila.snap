@@ -1,0 +1,34 @@
+---
+source: crates/nago-tui/tests/browser.rs
+expression: h.screen()
+---
+ nago  fila                                                               fila: 0 em execução · 0 pendente(s) · 0 total
+┌ fila ────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│nenhum job: escolha um arquivo e uma operação no navegador (Tab)                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                      ┌ atalhos ──────────────────────────────────────────────────────────────┐                       │
+│                      │ ↑/↓  k/j            selecionar job                                    │                       │
+│                      │ x                   cancelar o job em execução                        │                       │
+│                      │ d                   remover o job selecionado (pendente ou terminado) │                       │
+│                      │ Tab  Esc            voltar ao navegador                               │                       │
+│                      │ q                   sair                                              │                       │
+│                      │ ?                   mostrar/ocultar esta ajuda                        │                       │
+│                      │ Ctrl+C              sair (duas vezes seguidas confirma)               │                       │
+│                      └───────────────────────────────────────────────────────────────────────┘                       │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+ x cancelar · d remover · Tab voltar · ? ajuda · q sair

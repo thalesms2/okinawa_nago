@@ -266,3 +266,65 @@ fn audio_track_escolhe_a_faixa_e_formatos_de_audio_funcionam() {
         .code(2)
         .stderr(predicate::str::contains("2 faixa"));
 }
+
+/// `prepare_convert` (usado pela TUI para validar o formulário) dá o mesmo erro que a
+/// CLI e não cria nenhum arquivo.
+#[tokio::test(flavor = "multi_thread")]
+async fn prepare_convert_da_o_mesmo_erro_da_cli_sem_criar_arquivos() {
+    use nago_core::ops::{self, ConvertRequest, OutputOptions};
+    use nago_core::output::Reservations;
+
+    let dir = tempfile::tempdir().unwrap();
+    let input = dir.path().join("sem_audio.mp4");
+    let ok = std::process::Command::new("ffmpeg")
+        .args([
+            "-v",
+            "error",
+            "-f",
+            "lavfi",
+            "-i",
+            "testsrc2=size=320x240:rate=25:duration=1",
+            "-c:v",
+            "libx264",
+        ])
+        .arg(&input)
+        .status()
+        .unwrap();
+    assert!(ok.success());
+
+    let tools = nago_core::tools::Tools::locate().await.unwrap();
+    let caps = nago_core::caps::detect(&tools).await.unwrap();
+    let req = ConvertRequest {
+        input: input.clone(),
+        output: OutputOptions::default(),
+        format: Some("m4a".into()),
+        audio_track: None,
+        compat: false,
+    };
+    let err = ops::prepare_convert(&tools, &caps, &req, None, &Reservations::new())
+        .await
+        .unwrap_err();
+    assert_eq!(err.exit_code(), 2);
+    let names = || {
+        let mut v: Vec<_> = std::fs::read_dir(dir.path())
+            .unwrap()
+            .map(|e| e.unwrap().file_name())
+            .collect();
+        v.sort();
+        v
+    };
+    assert_eq!(names(), ["sem_audio.mp4"]);
+
+    let out = nago()
+        .args(["convert", "--to", "m4a"])
+        .arg(&input)
+        .output()
+        .unwrap();
+    assert_eq!(out.status.code(), Some(2));
+    let stderr = String::from_utf8_lossy(&out.stderr);
+    assert!(
+        stderr.contains(&err.to_string()),
+        "CLI: {stderr}\ncore: {err}"
+    );
+    assert_eq!(names(), ["sem_audio.mp4"]);
+}

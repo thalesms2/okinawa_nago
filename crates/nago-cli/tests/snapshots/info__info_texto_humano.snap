@@ -1,0 +1,12 @@
+---
+source: crates/nago-cli/tests/info.rs
+expression: "body.join(\"\\n\")"
+---
+  container  matroska (Matroska / WebM)
+  duração    00:00:06.021   tamanho 708.94 kB   bitrate 941 kb/s
+
+  #0  vídeo    h264 (High)  640x360  30 fps  8-bit
+  #1  áudio    aac (LC)  2 canais (stereo)  48 kHz  por  [padrão]
+  #2  áudio    aac (LC)  2 canais (stereo)  48 kHz  eng
+  #3  legenda  subrip  por
+  #4  legenda  subrip  eng
